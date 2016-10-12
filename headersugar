@@ -1,0 +1,48 @@
+#!/usr/bin/tail -n+2
+#define BOOST_PP_VARIADICS 1
+#include <boost/preprocessor.hpp>
+#define B(a) BOOST_PP_##a
+#define IF B(IF)
+#define EQ B(EQUAL)
+#define LEN B(VARIADIC_SIZE)
+
+#define new_2(a,b) a b = new a
+#define new_3(a,b,c) a[] b = new a[c]
+#define new_4(a,b,c,d) a[][] b = new a[c][d]
+#define new(a...) B(OVERLOAD)(new_,a)(a)
+
+#define println(x) System.out.println(x)
+#define print(x) System.out.print(x)
+#define printf(a...) System.out.print(a)
+#define eprintln(x) System.err.__println(x)
+#define eprint(x) System.err.__print(x)
+#define eprintf(a...) System.err.__print(a)
+
+#define scan_one(a,b) scan.next##b()
+#define scan_MACRO(r,d,i,e) B(COMMA_IF)(i) e=d
+#define scan_all(a,b,c...) a B(SEQ_FOR_EACH_I) \
+  (scan_MACRO, scan_one(a,b), B(VARIADIC_TO_SEQ)(c))
+#define scan(a...) IF(EQ(LEN(a),2), scan_one,scan_all)(a)
+
+#define int(a...) scan(int,Int,##a)
+#define str(a...) scan(String,,##a)
+#define line(a...) scan(String,Line,##a)
+#define double(a...) scan(double,Double,##a)
+#define long(a...) scan(long,Long,##a)
+
+#define for_1(a) for (a)
+#define for_2(a,b) for_(a,0,b,a++)
+#define for_3(a,b,c) for_(a,c,b,a++)
+#define for_4(a,b,c,d) for_(a,c,b,a--)
+#define for_(a,b,c,d) for (int a = b; a < c; d)
+#define for(a...) B(OVERLOAD)(for_,a)(a)
+
+#define ats(a...) Arrays.toString(a)
+#define BI BigInteger
+#define swap(a,b) a=a^b^(b=a)
+
+#define CLS
+
+import java.util.*;
+import java.io.*;
+import java.math.*;

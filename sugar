@@ -1,0 +1,29 @@
+#!/bin/bash
+set -e
+M=Main
+S=$M.sugar
+J=$M.java
+
+function sugarc {
+  headersugar
+  echo "public class $M {"
+  echo "  public static Scanner scan = new Scanner(System.in);"
+  echo "  public static void main(String[] args) {"
+  tail -n +2 $S | \
+    ptuplesugar | \
+    pctorsugar | \
+    ploopsugar | \
+    pdebugsugar | \
+    sed -E -e 's,^([^ {}]),public static \1,' \
+           -e 's,(class ([^ {]*).*\{),\1\n#undef CLS\n#define CLS \2,' \
+           -e 's,^  (\(.*\) *\{),  .CLS\1,' \
+           -e 's,  \.,  public ,' \
+           -e 's,^,  ,g'
+  echo }
+}
+
+sugarc > .rawsugar
+cpp -P .rawsugar | sed -e 's/__//g' > $J
+myjavac $J || (cat -n $J && false)
+echo Running...
+myjava $M || (cat -n $J && false)

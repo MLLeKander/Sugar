@@ -1,0 +1,12 @@
+{
+  int(a,s,d); int();
+  long(q,w,e);
+  str(z,x,c);
+  line(v,f,r);
+  debug(a,q,z,v);
+  loop (10) {
+    println(i);
+  }
+}
+
+ctuple Tmp(int a, int b);

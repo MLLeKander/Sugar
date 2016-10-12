@@ -1,0 +1,32 @@
+#!/usr/bin/python2
+import sys,os,re
+indent="  "
+def f(m):
+  def p(s,lvl=1):
+    print(indent*lvl+s)
+  comp = m.group(1) == 'c'
+  name=m.group(2)
+  args=[s.split() for s in re.split(', *',m.group(3))]
+
+  suffix = '' if not comp else ' implements Comparable<'+name+'>'
+  print('class '+name+suffix+' {')
+  p('('+m.group(3)+');')
+  if comp:
+    for arg in args:
+      p('.{0} {1}() {{ return {1}; }}'.format(*arg))
+    fields = [name+'::'+n for (t,n) in args]
+    p('.static Comparator<'+name+'> cmp = Comparator.comparing('+').thenComparing('.join(fields)+');')
+    p('.boolean equals(Object o) { return cmp.compare(this, ('+name+')o) == 0; }')
+    p('.int compareTo('+name+' o) { return cmp.compare(this, o); }')
+  else:
+    p('.boolean equals(Object oo) {')
+    eqstr = ' && '.join(n+'.equals(o.'+n+')' if t[0].isupper() else n+'==o.'+n for (t,n) in args)
+    p(name+' o = ('+name+')oo;',2)
+    p('return '+eqstr+';',2)
+    p('}')
+  p('.int hashCode() { return Objects.hash('+','.join(n for (t,n) in args)+'); }')
+  p('.String toString() { return ""+'+'+","+'.join(n for (t,n) in args)+'; }')
+  print('}')
+for l in list(sys.stdin):
+  print re.sub(r"^(c?)tuple *([^(]*) *\((.*)\);", f, l[:-1])
+
