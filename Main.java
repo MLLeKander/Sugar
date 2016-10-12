@@ -4,10 +4,10 @@ import java.math.*;
 public class Main {
   public static Scanner scan = new Scanner(System.in);
   public static void main(String[] args) {
-    int a=scan.nextInt() , s=scan.nextInt() , d=scan.nextInt() ; scan.nextInt();
-    long q=scan.nextLong() , w=scan.nextLong() , e=scan.nextLong() ;
-    String z=scan.next() , x=scan.next() , c=scan.next() ;
-    String v=scan.nextLine() , f=scan.nextLine() , r=scan.nextLine() ;
+    int a=scan.nextInt(), s=scan.nextInt(), d=scan.nextInt(); scan.nextInt();
+    long q=scan.nextLong(), w=scan.nextLong(), e=scan.nextLong();
+    String z=scan.next(), x=scan.next(), c=scan.next();
+    String v=scan.nextLine(), f=scan.nextLine(), r=scan.nextLine();
     System.err.println("a:"+a+"  q:"+q+"  z:"+z+"  v:"+v);
     for (int i = 0; i < 10; i++) {
       System.out.println(i);
