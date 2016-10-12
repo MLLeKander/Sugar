@@ -13,8 +13,8 @@ function sugarc {
     sugarpdbg | \
     sed -E -e 's,^\{,void main(String[] args) {,' \
            -e 's,^([^ {}]),public static \1,' \
-           -e 's,(class ([^ {]*).*\{),\1\n#undef CLS\n#define CLS \2,' \
-  `#space` -e 's,^  (\(.*\) *\{),  .CLS\1,' \
+           -e 's,(class ([^ ]*).*\{),\1\n#undef CLS\n#define CLS \2,' \
+  `#space` -e 's,^  (\(.*?\)),  .CLS\1,' \
   `#space` -e 's,  \.,  public ,' \
            -e 's,^,  ,'
   echo }

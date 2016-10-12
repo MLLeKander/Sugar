@@ -13,18 +13,18 @@ def f(m):
   if comp:
     for arg in args:
       p('.{0} {1}() {{ return {1}; }}'.format(*arg))
-    fields = [name+'::'+n for (t,n) in args]
+    fields = [name+'::'+n for t,n in args]
     p('.static Comparator<'+name+'> cmp = Comparator.comparing('+').thenComparing('.join(fields)+');')
     p('.boolean equals(Object o) { return cmp.compare(this, ('+name+')o) == 0; }')
     p('.int compareTo('+name+' o) { return cmp.compare(this, o); }')
   else:
     p('.boolean equals(Object oo) {')
-    eqstr = ' && '.join(n+'.equals(o.'+n+')' if t[0].isupper() else n+'==o.'+n for (t,n) in args)
+    eqstr = ' && '.join(n+'.equals(o.'+n+')' if t[0].isupper() else n+'==o.'+n for t,n in args)
     p(name+' o = ('+name+')oo;',2)
     p('return '+eqstr+';',2)
     p('}')
-  p('.int hashCode() { return Objects.hash('+','.join(n for (t,n) in args)+'); }')
-  p('.String toString() { return ""+'+'+","+'.join(n for (t,n) in args)+'; }')
+  p('.int hashCode() { return Objects.hash('+','.join(n for t,n in args)+'); }')
+  p('.String toString() { return ""+' + '+","+'.join(n for t,n in args) + '; }')
   print '}',
-for l in list(sys.stdin):
-  print re.sub(r"^(c?)tuple *([^(]*) *\((.*)\);", f, l[:-1])
+for l in sys.stdin:
+  print re.sub(r"^(c?)tuple *(.*) *\((.*)\);", f, l[:-1])

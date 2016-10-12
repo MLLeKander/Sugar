@@ -5,5 +5,5 @@ def f(m):
   return ''.join('  .{} {};\n'.format(a,b) for a,b in args) + \
     '  (' + ', '.join('{} {}_'.format(a,b) for a,b in args)   + ') ' + \
     '{ '  + ' '.join('{1}={1}_;'.format(a,b) for a,b in args) + ' }'
-for l in list(sys.stdin):
-  print re.sub(r"^  \(([^)]*)\);", f, l[:-1])
+for l in sys.stdin:
+  print re.sub(r"^  \((.*)\);", f, l[:-1])

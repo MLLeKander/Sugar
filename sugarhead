@@ -31,13 +31,12 @@
 # long(a...) scan(long,Long,##a)
 
 # for_1(a) for (a)
-# for_2(a,b) for_(a,0,b,a++)
-# for_3(a,b,c) for_(a,c,b,a++)
-# for_4(a,b,c,d) for_(a,c,b,a--)
-# for_(a,b,c,d) for (int a = b; a < c; d)
+# for_2(a,b) for_(a,0,b)
+# for_3(a,b,c) for_(a,b,c)
+# for_(a,b,c) for (int a = b; a < c; a++)
 # for(a...) B(OVERLOAD)(for_,a)(a)
 
-# ats(a...) Arrays.toString(a)
+# ats(a) Arrays.toString(a)
 # BI BigInteger
 # swap(a,b) a=a^b^(b=a)
 

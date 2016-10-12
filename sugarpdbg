@@ -4,5 +4,5 @@ def f(m):
   args = re.split(', *', m.group(1))
   def j(a): return a[1:] if a.startswith('"') else a+':"+'+a
   return 'eprintln("'+'+"  '.join(map(j,args))+');'
-for l in list(sys.stdin):
+for l in sys.stdin:
   print re.sub(r"debug *\((.*)\);", f, l[:-1])
