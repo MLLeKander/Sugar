@@ -46,7 +46,7 @@ loop (10) {                    // for (int i = 0; i < 10; i++) {
 ```
 - Easier Object and array declarations.
 ```
-new(ArrayList<HashMap<Integer,String>>, a)();   // ArrayList<HashMap<...>> a = new ArrayList<HashMap<...>>();
+new(ArrayList<HashMap<Integer,String>>, a)();   // ArrayList<HashMap<Integer>> a = new ArrayList<...>();
 new(int, b, 10);                                // int[] b = new int[10];
 new(int, c, 10, 20);                            // int[][] c = new int[10][20];
 ```
@@ -74,7 +74,7 @@ new(int,a,5);                        // int[] a = new int[5];
 println(ats(a));                     // System.out.println(Arrays.toString(a));
 int b = 5, c = 10;                   // int b = 5, c = 10;
 swap(a,b);                           // b=b^c^(c=b);
-BI.valueOf(b).gcd(BI.valueOf(c));   // BigInteger.valueOf(b).gcd(BigInteger.valueOf(c));
+BI.valueOf(b).gcd(BI.valueOf(c));    // BigInteger.valueOf(b).gcd(BigInteger.valueOf(c));
 ```
 
 ## Installation (Recommended Order)
