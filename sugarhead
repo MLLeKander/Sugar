@@ -13,13 +13,13 @@
 
 # println(x) System.out.println(x)
 # print(x) System.out.print(x)
-# printf(a...) System.out.print(a)
+# printf(x...) System.out.printf(x)
 # eprintln(x) System.err.__println(x)
 # eprint(x) System.err.__print(x)
-# eprintf(a...) System.err.__print(a)
+# eprintf(x...) System.err.__printf(x)
 
 # scan_one(a,b) scan.next##b()
-# scan_MACRO(r,d,i,e) B(COMMA_IF)(i) e=d
+# scan_MACRO(r,d,i,e) B(COMMA_IF)(i) e = d
 # scan_all(a,b,c...) a B(SEQ_FOR_EACH_I) \
   (scan_MACRO, scan_one(a,b), B(VARIADIC_TO_SEQ)(c))
 # scan(a...) IF(EQ(LEN(a),2), scan_one,scan_all)(a)

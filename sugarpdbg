@@ -1,10 +1,8 @@
 #!/usr/bin/python2
-import sys,os,re
-indent="  "
+import sys, re, os
 def f(m):
   args = re.split(', *', m.group(1))
-  def j(a): return a+':"+'+a# if a.startswith('"') else a[1:]
+  def j(a): return a[1:] if a.startswith('"') else a+':"+'+a
   return 'eprintln("'+'+"  '.join(map(j,args))+');'
 for l in list(sys.stdin):
   print re.sub(r"debug *\((.*)\);", f, l[:-1])
-

@@ -1,15 +1,14 @@
 #!/usr/bin/python2
-import sys,os,re
-indent="  "
+import sys, re, os
 def f(m):
   def p(s,lvl=1):
-    print(indent*lvl+s)
+    print '  '*lvl+s
   comp = m.group(1) == 'c'
-  name=m.group(2)
-  args=[s.split() for s in re.split(', *',m.group(3))]
+  name = m.group(2)
+  args = [s.split() for s in re.split(', *',m.group(3))]
 
   suffix = '' if not comp else ' implements Comparable<'+name+'>'
-  print('class '+name+suffix+' {')
+  print 'class '+name+suffix+' {'
   p('('+m.group(3)+');')
   if comp:
     for arg in args:
@@ -26,7 +25,6 @@ def f(m):
     p('}')
   p('.int hashCode() { return Objects.hash('+','.join(n for (t,n) in args)+'); }')
   p('.String toString() { return ""+'+'+","+'.join(n for (t,n) in args)+'; }')
-  print('}')
+  print '}',
 for l in list(sys.stdin):
   print re.sub(r"^(c?)tuple *([^(]*) *\((.*)\);", f, l[:-1])
-

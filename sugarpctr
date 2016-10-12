@@ -1,12 +1,9 @@
 #!/usr/bin/python2
-import sys,os,re
-indent="  "
+import sys, re, os
 def f(m):
   args = [s.split() for s in re.split(', *', m.group(1))]
-  out = '\n'.join(indent+'.{} {};\n'.format(*arg) for arg in args)
-  astr = ', '.join(t+' '+n+'_' for (t,n) in args)
-  bstr = ' '.join(n+'='+n+'_;' for (t,n) in args)
-  return out+indent+'('+astr+') { '+bstr+' }\n'
+  return ''.join('  .{} {};\n'.format(a,b) for a,b in args) + \
+    '  (' + ', '.join('{} {}_'.format(a,b) for a,b in args)   + ') ' + \
+    '{ '  + ' '.join('{1}={1}_;'.format(a,b) for a,b in args) + ' }'
 for l in list(sys.stdin):
-  print re.sub(r'^  \(([^)]*)\);', f, l[:-1])
-
+  print re.sub(r"^  \(([^)]*)\);", f, l[:-1])

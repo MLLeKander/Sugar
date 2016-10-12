@@ -1,10 +1,8 @@
 #!/usr/bin/python2
-import sys,os,re
-indent="  "
+import sys, re, os
 def f(m):
   vs = '_ijklou'
   v = vs[len(m.group(1))/2]
   return m.group(1)+'for ('+v+','+m.group(2)+') {'
 for l in list(sys.stdin):
   print re.sub(r"^( *)loop *\((.*?)\) *\{", f, l[:-1])
-

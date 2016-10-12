@@ -79,32 +79,32 @@ BI.valueOf(b).gcd(BI.valueOf(c));    // BigInteger.valueOf(b).gcd(BigInteger.val
 
 ## Installation (Recommended Order)
 
-- Create all files and set appropriate permissions. Estimated time: TODO.
+- Create all files and set appropriate permissions. Estimated time: 1 minute.
 ```
 echo 'export PATH=$PATH:~/sugar' >> .bashrc
 mkdir sugar
 cd sugar
 touch sugar{,head,ptpl,pctr,plop,pdbg}
-for i in *sugar; do echo cat > $i; done
-chmod +x *sugar
+for i in sugar*; do echo cat > $i; done
+chmod +x sugar*
 ```
-- Copy `sugar`. Estimated time: TODO.
-- Copy `sugarhead`. Estimated time: TODO.
+- Copy `sugar`. Estimated time: 5 minutes.
+- Copy `sugarhead`. Estimated time: 5 minutes.
     - At this point, you sugar is minimially functional. Below modules may optionally be added for more sugar.
-- Create Python templates. Estimated time: TODO.
+- Create Python templates. Estimated time: 1 minute.
 ```
-for i in *psugar; do echo -e '#!/usr/bin/python2
+for i in sugarp*; do echo -e '#!/usr/bin/python2
 import sys, re, os
 def f(m):
   pass
 for l in list(sys.stdin):
-  print re.sub(r"asdf", r l[:-1])' > $i;
+  print re.sub(r"asdf", f, l[:-1])' > $i;
 done
 ```
-- Copy `sugarpdbg`. Estimated time: TODO.
-- Copy `sugarpctr`. Estimated time: TODO.
-- Copy `sugarplop`. Estimated time: TODO.
-- Copy `sugarptpl`. Estimated time: TODO. **Requires `pctorsugar`.**
+- Copy `sugarpdbg`. Estimated time: 1 minute.
+- Copy `sugarpctr`. Estimated time: 2 minutes.
+- Copy `sugarplop`. Estimated time: 1 minute.
+- Copy `sugarptpl`. Estimated time: 8 minutes. **Note: Requires `sugarpctor`.**
 - For vim users, add the following to .vimrc:
 ```
 au BufRead,BufNewFile *.sugar setfiletype java
