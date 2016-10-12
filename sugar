@@ -5,14 +5,14 @@ S=$M.sugar
 J=$M.java
 
 function sugarc {
-  headersugar | sed -e 's/^# /#define /'
+  sugarhead | sed -e 's/^# /#define /'
   echo "public class $M {"
   echo "  public static Scanner scan = new Scanner(System.in);"
   cat $S | \
-    ptuplesugar | \
-    pctorsugar | \
-    ploopsugar | \
-    pdebugsugar | \
+    sugarptpl | \
+    sugarpctr | \
+    sugarplop | \
+    sugarpdbg | \
     sed -E -e 's,^\{,void main(String[] args) {,' \
            -e 's,^([^ {}]),public static \1,' \
            -e 's,(class ([^ {]*).*\{),\1\n#undef CLS\n#define CLS \2,' \
