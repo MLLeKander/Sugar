@@ -1,9 +1,0 @@
-#!/usr/bin/python2
-import sys, re, os
-def f(m):
-  args = [s.split() for s in re.split(', *', m.group(1))]
-  return ''.join('  .{} {};\n'.format(a,b) for a,b in args) + \
-    '  (' + ', '.join('{} {}_'.format(a,b) for a,b in args)   + ') ' + \
-    '{ '  + ' '.join('{1}={1}_;'.format(a,b) for a,b in args) + ' }'
-for l in sys.stdin:
-  print re.sub(r"^  \((.*)\);", f, l[:-1])

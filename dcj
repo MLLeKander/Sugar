@@ -1,0 +1,100 @@
+#!/bin/bash
+set -e
+LIB=$1
+[ "$#" -gt 1 ] && NODES=$2 || NODES=8
+BASE=Main
+S=${BASE}.dcj
+J=${BASE}.java
+
+function dcjc {
+  shead
+  grep $S -e '^ *import' | cat
+  echo "public class $BASE {"
+  echo '  public static final PrintStream outWriter = System.out;'
+  echo '  public static class Node {'
+  echo '    int ndx;'
+  echo '    public Node(int ndx_) { ndx=ndx_; }'
+
+  echo '#define put(type, body) public Node put(type i) { body; return this; } public void putln(type i) { body; send(); } public void put(type[] arr) { put(arr.length); for (type i : arr) { body; } } public void putln(type[] arr) { put(arr); send(); }'
+  echo '    put(int, message.PutInt(ndx, i))'
+  echo '    put(char, message.PutChar(ndx, i))'
+  echo '    put(long, message.PutLL(ndx, i))'
+  echo '    put(Puttable, i.putTo(this))'
+  echo '#undef put'
+
+  echo '#define get(type, post, body) public type get##post() { return body; } public type getln##post() { receive(); return body; } public type[] get##post##A() { type[] out = new type[getInt()]; for (int i = 0; i < out.length; i++) { out[i] = get##post(); } return out; } public type[] getln##post##A() { receive(); return get##post##A(); }'
+  echo '    get(int, Int, message.GetInt(ndx))'
+  echo '    get(long, Long, message.GetLL(ndx))'
+  echo '    get(char, Char, message.GetChar(ndx))'
+  #echo '    public int getInt() { return message.GetInt(ndx); }'
+  #echo '    public long getLong() { return message.GetLL(ndx); }'
+  #echo '    public char getChar() { return message.GetChar(ndx); }'
+  echo '#undef get'
+  #echo '    public <T> T get(Function<Node,T> f) { return f.apply(this); } public <T> T getln(Function<Node,T> f) { receive(); return f.apply(this); }'
+
+  echo '    public void send() { message.Send(ndx); }'
+  echo '    public void receive() { message.Receive(ndx); }'
+  echo '  }'
+  echo '  public interface Puttable { void putTo(Node o); }'
+  echo '  public static Node[] nodes = new Node[message.NumberOfNodes()];'
+  echo '  static {'
+  echo '    for (int i = 0; i < nodes.length; i++) {'
+  echo '      nodes[i] = new Node(i);'
+  echo '    }'
+  echo '  }'
+  echo '  public static int activeNodes = nodes.length;'
+  echo '  public static Node masterNode = nodes[0];'
+  echo '  static int nodeId = message.MyNodeId();'
+  #echo '  public static long[] linspace(long hi) { return linspace(hi, nodes.length); }'
+  echo '  public static long[] linspace(long hi, int n) {'
+  echo '    long[] out = new long[n];'
+  echo '    for (int lo = 0, i = 0; i < out.length; i++) {'
+  echo '      lo += (hi-lo)/n--;'
+  echo '      out[i] = lo;'
+  echo '    }'
+  echo '    return out;'
+  echo '  }'
+
+  #echo '  @FunctionalInterface interface RangeWorker { void doWork(long lo, long hi); }'
+  #echo '  @FunctionalInterface interface Worker { void doWork(); }'
+  #echo '  public static void run(Worker slave, Worker master) {'
+  #echo '    slave.doWork();'
+  #echo '    if (nodeId == 0) {'
+  #echo '      master.doWork();'
+  #echo '    }'
+  #echo '  }'
+  #echo '  public static void run(long[] ranges, RangeWorker slave, Worker master) {'
+  #echo '    if (nodeId < ranges.length) {'
+  #echo '      long lo = nodeId == 0 ? 0 : ranges[nodeId-1], hi = ranges[nodeId];'
+  #echo '      slave.doWork(lo, hi);'
+  #echo '    }'
+  #echo '    if (nodeId == 0) {'
+  #echo '      master.doWork();'
+  #echo '    }'
+  #echo '  }'
+
+  grep $S -v -e '^ *import' | \
+    spy | \
+    sed -E 's;^\{;void main(String[] args) {;;
+            s;^class ([^ {<]*).*\{;\0\n#undef CLS\n#define CLS \1;;
+            s;^master;void master;;
+            s;^slave;void slave;;
+            /^static/! s;^[^ {}#@/];public static \0;;
+            s;^  (\(.*?\));  CLS\1;;   #SPACE!
+            s;^  %;  private ;;        #SPACE!
+            s;^  \.;  public ;;        #SPACE!
+            s;^;  ;;'
+
+  echo '}'
+}
+
+[ -e $S ] || (echo $S not found... && false)
+
+dcjc | tee /tmp/${BASE}.raw | cpp -P | sed 's/__//g; s/></,/g' > $J
+
+mkdir -p .bin
+cp $J $LIB .bin/
+cd .bin
+
+~/Documents/GCJ/dcj/dcj.sh test --source $J --library `basename $LIB` --nodes $NODES | grep -v "^{'executable': None,"
+#~/Documents/GCJ/dcj/dcj.sh test --source $J --library `basename $LIB` --nodes $NODES | sed "s/ 'func':[^,]*, 'output':[^,]*,//" #| grep -v "^{'executable': None,"

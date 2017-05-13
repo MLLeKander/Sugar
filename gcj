@@ -1,19 +1,19 @@
 #!/bin/bash
 set -e
 [ "$#" -gt 0 ] && BASE=${1%.*} || BASE=Main
-S=${BASE}.sugar
+G=${BASE}.gcj
 J=${BASE}.java
 
 function sugarc {
   shead
-  grep $S -e '^ *import' | cat
+  grep $G -e '^ *import' | cat
   echo "public class $BASE {"
   echo '  public static final BufferedReader buffer = new BufferedReader(new InputStreamReader(System.in));'
   echo '  public static final PrintWriter outWriter = new PrintWriter(System.out);'
 
-  grep $S -v -e '^ *import' | \
+  grep $G -v -e '^ *import' | \
     spy | \
-    sed -E 's;^\{;void main() {;;
+    sed -E 's;^\{;Object solve() {;;
             s;^class ([^ {<]*).*\{;\0\n#undef CLS\n#define CLS \1;;
             s;^[^ {}#@/];public static \0;;
             s;^  (\(.*?\));  CLS\1;;   #SPACE!
@@ -21,7 +21,15 @@ function sugarc {
             s;^  \.;  public ;;        #SPACE!
             s;^;  ;;'
 
-  echo '  public static void main(String[] args) { main(); flush(); }'
+  echo '  public static void main(String[] args) {'
+  echo '    int T = nextInt();'
+  echo '    for (int i = 0; i < T; i++) {'
+  echo '      print("Case #"+(i+1)+": ");'
+  echo '      Object tmp = solve();'
+  echo '      if (tmp != null) { println(tmp); }'
+  echo '    }'
+  echo '    flush();'
+  echo '  }'
   echo '  public static StringTokenizer tokenizer = null;'
   echo '  public static String nextLine() {'
   echo '    try { return buffer.readLine(); } catch (IOException e) { throw new UncheckedIOException(e); }'
@@ -36,7 +44,7 @@ function sugarc {
   echo '}'
 }
 
-[ -e $S ] || (echo $S not found... && false)
+[ -e $G ] || (echo $G not found... && false)
 
 sugarc | tee /tmp/${BASE}.raw | cpp -P | sed 's/__//g; s/></,/g' > $J
 myjavac $J #|| (cat -n $J && false)

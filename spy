@@ -1,0 +1,156 @@
+#!/usr/bin/python2
+import sys, re, os
+def fmndx(m):
+    prefix,minOrMax,args = m.groups()
+    args = re.split(', *', args)
+    isMin = minOrMax == 'in'
+    if len(args) == 4:
+        tName, mName, mNdxName, arrName = args
+    elif len(args) == 3:
+        tName, mName, arrName = args
+        mNdxName = mName+'Ndx'
+    elif len(args) == 2:
+        tName, arrName = args
+        mName = 'min' if isMin else 'max'
+        mNdxName = mName+'Ndx'
+    else:
+        raise Exception('Invalid arg length')
+    out =  prefix+'%s %s = %s[0];\n'%(tName, mName, arrName)
+    out += prefix+'int %s = 0;\n'%mNdxName
+    out += prefix+'for (int i = 0; i < %s.length; i++) {\n'%arrName
+    out += prefix+'  if (%s %s %s[i]) {\n'%(mName, '>' if isMin else '<', arrName)
+    out += prefix+'    %s = %s[i];\n'%(mName, arrName)
+    out += prefix+'    %s = i;\n'%mNdxName
+    out += prefix+'  }\n'
+    out += prefix+'}\n'
+    return out
+def fanew(m):
+    sp,prefix,args = m.groups()
+    if args.count(',') == 2:
+        t,name,init = map(str.strip, args.split(','))
+        perItem = None
+    else:
+        t,name,init,perItem = map(str.strip, args.split(',',3))
+    l1 = '%s%s%s[] %s = new %s[%s];'%(sp,prefix,t,name,t,init)
+    l2 = '\n%sfor (i, %s.length) { %s[i] = %s; }'%(sp,name,name,perItem) if perItem else ''
+    return l1+l2
+def fscan(m):
+    a,b = m.groups()
+    if a == 'line' or a == 'str':
+        t = 'String'
+    else:
+        t = a
+    s = ', '.join('%s = %s()'%(tmp,a) for tmp in b.split(','))
+    return '%s %s;'%(t,s)
+def fdebug(m):
+    args = re.split(', *', m.group(1))
+    def j(a): return a[1:] if a.startswith('"') else a+':"+('+a+')'
+    return 'eprintln("'+ '+"  '.join(map(j,args)) +');'
+def ffor(m):
+    tmp = m.group(1).split(',')
+    if len(tmp) == 2: tmp.insert(1,'0')
+    a,b,c = map(str.strip, tmp)
+    return 'for (int %s = %s; %s < %s; %s++) {'%(a,b,a,c,a)
+def fctor(m):
+    args = [s.split() for s in re.split(', *', m.group(1))]
+    s1 = ''.join('  .{} {};\n'.format(a,b) for a,b in args)
+    s2 = ''.join('  .{} {}() {{ return {}; }}\n'.format(a,b,b) for a,b in args)
+    s3 = ', '.join('{} {}_'.format(a,b) for a,b in args)
+    s4 = ' '.join('{1}={1}_;'.format(a,b) for a,b in args)
+    return '{}{}  ({}) {{ {} }}'.format(s1,s2,s3,s4)
+def ftup(m):
+    out = ['']
+    def p(s,lvl=1):
+        out[0] += '  '*lvl+s+'\n'
+    msg = m.group(1) == 'm'
+    comp = m.group(2) == 'c'
+    name = m.group(3)
+    args = [s.split() for s in re.split(', *',m.group(4))]
+
+    suffix = '' if not msg or comp else ' implements' + (' Comparable<'+name+'>' if comp else '') + (',' if msg and comp else '') + (' Puttable' if msg else '')
+    p('class '+name+suffix+' {',0)
+    p('('+m.group(4)+');')
+    if msg:
+        p('(Node n) {')
+        def readType(t):
+            if t == 'int': return 'n.getInt()'
+            if t == 'long': return 'n.getLong()'
+            if t == 'char': return 'n.getChar()'
+            return 'n.get('+t+'::read)'
+        p('this('+ ','.join(readType(t) for t,n in args) +');',2)
+        p('}')
+        p('.void putTo(Node n) {')
+        for t, n in args:
+            p('n.put('+n+');', 2)
+        p('}')
+        p('.static '+name+' get(Node n) { return new '+name+'(n); }')
+        p('.static '+name+' getln(Node n) { n.receive(); return get(n); }')
+    #p('.'+name+' clone() { return new '+name+'('+ ','.join(n for t,n in args) +'); }')
+    if comp:
+        #TODO: Why?
+        #for arg in args:
+        #    p('.{0} {1}() {{ return {1}; }}'.format(*arg))
+        s = ').thenComparing('.join(name+'::'+n for t,n in args)
+        p('.static Comparator<'+name+'> cmp = Comparator.comparing('+s+');')
+        p('.int compareTo('+name+' o) { return cmp.compare(this, o); }')
+    p('.boolean equals(Object oo) {')
+    p('@SuppressWarnings("unchecked")',2)
+    p(name+' o = ('+name+')oo;',2)
+    def eq(t,a): return a+'.equals(o.'+a+')' if t[0].isupper() else a+'==o.'+a
+    p('return '+'&&'.join(eq(t,n) for t,n in args) +';',2)
+    p('}')
+    p('.int hashCode() { return Objects.hash('+ ','.join(n for t,n in args) +'); }')
+    s = '+","+'.join('ats('+n+')' if t.endswith('[]') else n for t,n in args)
+    p('.String toString() { return ""+'+s+'; }')
+    if (m.group(5) == ';'):
+        p('}',0)
+    return out[0]
+def flinspace(m):
+    prefix, args = m.groups()
+    args = re.split(', *', args)
+    if len(args) == 1:
+        args.append('slave')
+    n, cmd = args
+    out =  prefix+'{\n'
+    out += prefix+'  long[] ranges = linspace(%s, nodes.length);\n'%n
+    out += prefix+'  activeNodes = ranges.length;\n'
+    out += prefix+'  if (nodeId < ranges.length) {\n'
+    out += prefix+'    long lo = nodeId == 0 ? 0 : ranges[nodeId-1], hi = ranges[nodeId];\n'
+    out += prefix+'    %s(lo, hi);\n'%cmd
+    out += prefix+'  }\n'
+    out += prefix+'}'
+    return out
+def fslave(m):
+    args = re.split(', *', m.group(1))
+    if len(args) == 0 or args[0] == '':
+        args = ['slave']
+    return args[0]+'();'
+    
+def fmaster(m):
+    args = re.split(', *', m.group(1))
+    if len(args) == 0 or args[0] == '':
+        args = ['master']
+    return 'if (nodeId == 0) { %s(); }'%args[0]
+
+lst = [
+  (r'^( *)m(in|ax)ndx\((.*)\);', fmndx),
+  (r'^( *)\b(.*)anew\((.+)\);', fanew),
+  (r'\b(int|long|double|str|line)\(([^)]+)\);', fscan),
+  (r'debug *\((.*)\);', fdebug),
+  (r'for *\(([^:;]*)\) *{', ffor),
+  (r'^(m?)(c?)tuple *(.*) *\((.*)\) *(;|{)', ftup),
+  (r'^  \(([^)]*)\);', fctor),
+  (r'^( *)LINSPACE\((.*)\);', flinspace),
+  (r'SLAVE\((.*)\);', fslave),
+  (r'MASTER\((.*)\);', fmaster),
+]
+
+lines = list(sys.stdin)
+if not any(x.startswith('{') for x in lines):
+    lines.extend(['{\n','  SLAVE();\n','  MASTER();\n','}\n'])
+
+for l in lines:
+    l=l[:-1]
+    for r, f in lst:
+        l = re.sub(r, f, l, flags=re.MULTILINE)
+    print l

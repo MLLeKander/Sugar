@@ -1,0 +1,25 @@
+#!/bin/sed s/# /#define /; /#!/d
+# CLS
+# ats(a) Arrays.toString(a)
+# int() nextInt()
+# str() next()
+# line() nextLine()
+# double() nextDouble()
+# long() nextLong()
+# new(a,b) a b = new a
+# swap(a,b) a^=b^(b=a)
+# println(x) outWriter.println(x)
+# print(x) outWriter.print(x)
+# printf(x...) outWriter.printf(x)
+# flush() outWriter.flush()
+# eprintln(x) System.err.__println(x)
+# eprint(x) System.err.__print(x)
+# eprintf(x...) System.err.__printf(x)
+# MAX(a,b) a = Math.max(a,b)
+# MIN(a,b) a = Math.min(a,b)
+import java.util.*;
+//import java.util.stream.*;
+import java.io.*;
+import java.math.*;
+import java.awt.geom.*;
+//import java.util.function.*;

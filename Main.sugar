@@ -1,12 +1,26 @@
 {
-  int(a,s,d); int();
+  int(a,s);
+  int d = int()-1;
   long(q,w,e);
   str(z,x,c);
   line(v,f,r);
   debug(a,q,z,v);
-  loop (10) {
-    println(i);
+  for (i, 4) {
+    println("for2 "+i);
+  }
+  for (i, 2, 4) {
+    println("for3 "+i);
   }
 }
 
 ctuple Tmp(int a, int b);
+
+tuple Tmp2(int a) {
+  .int tmp() { return a-5; }
+}
+
+class Foo {
+  (int a, int b);
+}
+
+new(HashMap<Integer><Integer>,foo)();
